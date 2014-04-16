@@ -1413,7 +1413,7 @@ var ngGrid = function ($scope, options, sortService, domUtilityService, $filter,
                 if (indx !== -1) {
                     column.isGroupedBy = true;
                     $scope.configGroups.splice(indx, 0, column);
-                    column.groupIndex = $scope.configGroups.length;
+                    column.groupIndex = indx+1;
                 }
                 cols.push(column);
             });
