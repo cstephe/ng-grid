@@ -2,7 +2,7 @@
 * ng-grid JavaScript Library
 * Authors: https://github.com/angular-ui/ng-grid/blob/master/README.md 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 04/17/2014 14:29
+* Compiled At: 07/31/2014 15:13
 ***********************************************/
 (function(window, $) {
 'use strict';
@@ -917,36 +917,38 @@ var ngEventProvider = function (grid, $scope, domUtilityService, $timeout) {
         evt.preventDefault();
     };
     self.setDraggables = function() {
-        if (!grid.config.jqueryUIDraggable) {
-            var columns = grid.$root.find('.ngHeaderSortColumn'); 
-            angular.forEach(columns, function(col){
-                if(col.className && col.className.indexOf("ngHeaderSortColumn") !== -1){
-                    col.setAttribute('draggable', 'true');
-                    if (col.addEventListener) { 
-                        col.addEventListener('dragstart', self.dragStart);
+        if(grid.config.showGroupPanel || grid.config.enableColumnReordering){
+            if (!grid.config.jqueryUIDraggable) {
+                var columns = grid.$root.find('.ngHeaderSortColumn'); 
+                angular.forEach(columns, function(col){
+                    if(col.className && col.className.indexOf("ngHeaderSortColumn") !== -1){
+                        col.setAttribute('draggable', 'true');
+                        if (col.addEventListener) { 
+                            col.addEventListener('dragstart', self.dragStart);
+                        }
                     }
+                });
+                if (navigator.userAgent.indexOf("MSIE") !== -1){
+                    grid.$root.find('.ngHeaderSortColumn').bind('selectstart', function () {
+                        this.dragDrop();
+                        return false;
+                    });
                 }
-            });
-            if (navigator.userAgent.indexOf("MSIE") !== -1){
-                grid.$root.find('.ngHeaderSortColumn').bind('selectstart', function () { 
-                    this.dragDrop(); 
-                    return false; 
-                });	
+            } else {
+                grid.$root.find('.ngHeaderSortColumn').draggable({
+                    helper: 'clone',
+                    appendTo: 'body',
+                    stack: 'div',
+                    addClasses: false,
+                    start: function(event) {
+                        self.onHeaderMouseDown(event);
+                    }
+                }).droppable({
+                    drop: function(event) {
+                        self.onHeaderDrop(event);
+                    }
+                });
             }
-        } else {
-            grid.$root.find('.ngHeaderSortColumn').draggable({
-                helper: 'clone',
-                appendTo: 'body',
-                stack: 'div',
-                addClasses: false,
-                start: function(event) {
-                    self.onHeaderMouseDown(event);
-                }
-            }).droppable({
-                drop: function(event) {
-                    self.onHeaderDrop(event);
-                }
-            });
         }
     };
     self.onGroupMouseDown = function(event) {

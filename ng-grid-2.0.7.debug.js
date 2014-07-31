@@ -2,7 +2,7 @@
 * ng-grid JavaScript Library
 * Authors: https://github.com/angular-ui/ng-grid/blob/master/README.md 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 04/17/2014 14:29
+* Compiled At: 07/31/2014 15:13
 ***********************************************/
 (function(window, $) {
 'use strict';
@@ -967,40 +967,42 @@ var ngEventProvider = function (grid, $scope, domUtilityService, $timeout) {
     };
     //For JQueryUI
     self.setDraggables = function() {
-        if (!grid.config.jqueryUIDraggable) {
-            //Fix for FireFox. Instead of using jQuery on('dragstart', function) on find, we have to use addEventListeners for each column.
-            var columns = grid.$root.find('.ngHeaderSortColumn'); //have to iterate if using addEventListener
-            angular.forEach(columns, function(col){
-                if(col.className && col.className.indexOf("ngHeaderSortColumn") !== -1){
-                    col.setAttribute('draggable', 'true');
-                    //jQuery 'on' function doesn't have  dataTransfer as part of event in handler unless added to event props, which is not recommended
-                    //See more here: http://api.jquery.com/category/events/event-object/
-                    if (col.addEventListener) { //IE8 doesn't have drag drop or event listeners
-                        col.addEventListener('dragstart', self.dragStart);
+        if(grid.config.showGroupPanel || grid.config.enableColumnReordering){
+            if (!grid.config.jqueryUIDraggable) {
+                //Fix for FireFox. Instead of using jQuery on('dragstart', function) on find, we have to use addEventListeners for each column.
+                var columns = grid.$root.find('.ngHeaderSortColumn'); //have to iterate if using addEventListener
+                angular.forEach(columns, function(col){
+                    if(col.className && col.className.indexOf("ngHeaderSortColumn") !== -1){
+                        col.setAttribute('draggable', 'true');
+                        //jQuery 'on' function doesn't have  dataTransfer as part of event in handler unless added to event props, which is not recommended
+                        //See more here: http://api.jquery.com/category/events/event-object/
+                        if (col.addEventListener) { //IE8 doesn't have drag drop or event listeners
+                            col.addEventListener('dragstart', self.dragStart);
+                        }
                     }
+                });
+                if (navigator.userAgent.indexOf("MSIE") !== -1){
+                    //call native IE dragDrop() to start dragging
+                    grid.$root.find('.ngHeaderSortColumn').bind('selectstart', function () {
+                        this.dragDrop();
+                        return false;
+                    });
                 }
-            });
-            if (navigator.userAgent.indexOf("MSIE") !== -1){
-                //call native IE dragDrop() to start dragging
-                grid.$root.find('.ngHeaderSortColumn').bind('selectstart', function () { 
-                    this.dragDrop(); 
-                    return false; 
-                });	
+            } else {
+                grid.$root.find('.ngHeaderSortColumn').draggable({
+                    helper: 'clone',
+                    appendTo: 'body',
+                    stack: 'div',
+                    addClasses: false,
+                    start: function(event) {
+                        self.onHeaderMouseDown(event);
+                    }
+                }).droppable({
+                    drop: function(event) {
+                        self.onHeaderDrop(event);
+                    }
+                });
             }
-        } else {
-            grid.$root.find('.ngHeaderSortColumn').draggable({
-                helper: 'clone',
-                appendTo: 'body',
-                stack: 'div',
-                addClasses: false,
-                start: function(event) {
-                    self.onHeaderMouseDown(event);
-                }
-            }).droppable({
-                drop: function(event) {
-                    self.onHeaderDrop(event);
-                }
-            });
         }
     };
     self.onGroupMouseDown = function(event) {
