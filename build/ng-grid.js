@@ -2,7 +2,7 @@
 * ng-grid JavaScript Library
 * Authors: https://github.com/angular-ui/ng-grid/blob/master/README.md 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 07/31/2014 15:13
+* Compiled At: 01/14/2016 09:40
 ***********************************************/
 (function(window, $) {
 'use strict';
@@ -295,6 +295,7 @@ angular.module('ngGrid.services').factory('$domUtilityService',['$utilityService
         for (var i = 0; i < cols.length; i++) {
             var col = cols[i];
             if (col.visible !== false) {
+                col.width = col.width < (col.minWidth || 0) ? (col.minWidth || 0) : col.width;
                 css += "." + gridId + " .col" + i + " { width: " + col.width + "px; left: " + sumWidth + "px; height: " + rowHeight + "px }" +
                     "." + gridId + " .colt" + i + " { width: " + col.width + "px; }";
                 sumWidth += col.width;

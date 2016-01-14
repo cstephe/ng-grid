@@ -104,6 +104,7 @@
         for (var i = 0; i < cols.length; i++) {
             var col = cols[i];
             if (col.visible !== false) {
+                col.width = col.width < (col.minWidth || 0) ? (col.minWidth || 0) : col.width;
                 css += "." + gridId + " .col" + i + " { width: " + col.width + "px; left: " + sumWidth + "px; height: " + rowHeight + "px }" +
                     "." + gridId + " .colt" + i + " { width: " + col.width + "px; }";
                 sumWidth += col.width;
